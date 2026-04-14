@@ -2,19 +2,12 @@ openapi: 3.0.0
 info:
   title: Simple Auth API
   version: 1.0.0
-  description: >
-    Authentication endpoints for a simple web application.
-    Covers user login, registration, and password reset.
 
 paths:
 
   /login:
     post:
       summary: User login
-      description: >
-        Authenticates a user with email and password.
-        On success returns a JWT token and session ID.
-        On failure returns 401 with an error message.
       tags:
         - Authentication
       requestBody:
@@ -29,16 +22,13 @@ paths:
               properties:
                 email:
                   type: string
-                  format: email
                   example: user@example.com
                 password:
                   type: string
-                  format: password
-                  minLength: 8
                   example: "P@ssw0rd123"
       responses:
         '200':
-          description: Successful login — credentials are valid
+          description: Successful login
           content:
             application/json:
               schema:
@@ -46,8 +36,7 @@ paths:
                 properties:
                   token:
                     type: string
-                    description: JWT access token
-                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0Mn0.abc123"
+                    example: "eyJhbGciOiJIUzI1NiJ9.abc.xyz"
                   session_id:
                     type: string
                     example: "sess_9f3a2b1c"
@@ -55,30 +44,21 @@ paths:
                     type: integer
                     example: 42
         '400':
-          description: Bad request — missing or malformed fields
+          description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "Field 'email' is required"
         '401':
-          description: Unauthorized — invalid credentials
+          description: Invalid credentials
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "Invalid email or password"
-
 
   /register:
     post:
       summary: User registration
-      description: >
-        Creates a new user account.
-        Password is stored as a bcrypt hash.
-        Returns the new user's ID on success.
       tags:
         - Authentication
       requestBody:
@@ -94,18 +74,13 @@ paths:
               properties:
                 username:
                   type: string
-                  minLength: 3
-                  maxLength: 32
-                  example: "john_doe"
+                  example: john_doe
                 email:
                   type: string
-                  format: email
-                  example: "john@example.com"
+                  example: john@example.com
                 password:
                   type: string
-                  format: password
                   minLength: 8
-                  description: Must be at least 8 characters
                   example: "P@ssw0rd123"
       responses:
         '201':
@@ -122,29 +97,21 @@ paths:
                     type: integer
                     example: 42
         '400':
-          description: Validation error — invalid or missing fields
+          description: Validation error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "Password must be at least 8 characters"
         '409':
-          description: Conflict — email or username already taken
+          description: Email already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "A user with this email already exists"
 
   /reset-password:
     post:
       summary: Request password reset
-      description: >
-        Sends a one-time password reset link to the provided email address.
-        The response is always 200 regardless of whether the email exists,
-        to prevent user enumeration attacks.
       tags:
         - Authentication
       requestBody:
@@ -158,11 +125,10 @@ paths:
               properties:
                 email:
                   type: string
-                  format: email
-                  example: "user@example.com"
+                  example: user@example.com
       responses:
         '200':
-          description: Reset email sent (if the address is registered)
+          description: Reset link sent
           content:
             application/json:
               schema:
@@ -172,13 +138,11 @@ paths:
                     type: string
                     example: "If this email is registered, a reset link has been sent"
         '400':
-          description: Bad request — missing or invalid email field
+          description: Invalid email
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: "A valid email address is required"
 
 components:
   schemas:
@@ -187,5 +151,4 @@ components:
       properties:
         error:
           type: string
-          description: Human-readable error message
           example: "Something went wrong"
